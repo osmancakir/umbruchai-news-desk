@@ -1,0 +1,16 @@
+node_modules/
+
+# Secrets
+.env
+.env.local
+*.pem
+
+# LangGraph local runtime
+.langgraph_api/
+
+# Build output
+dist/
+*.tsbuildinfo
+
+# OS
+.DS_Store

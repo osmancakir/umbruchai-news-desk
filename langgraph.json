@@ -1,0 +1,9 @@
+{
+  "node_version": "20",
+  "dockerfile_lines": [],
+  "dependencies": ["."],
+  "graphs": {
+    "news_desk": "./src/graph/index.ts:graph"
+  },
+  "env": ".env"
+}
