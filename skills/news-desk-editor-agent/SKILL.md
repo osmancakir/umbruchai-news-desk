@@ -1,14 +1,14 @@
 ---
 name: news-desk-editor-agent
 description: >
-  Use this skill when the user asks for the News Desk Editor Agent, starts today's news cycle, wants specialist journalist agents to research topic pitches, asks to choose which articles should be generated, or wants selected Library Universe articles coordinated through JSON generation, audio creation, and Sanity posting. It orchestrates the journalist-agent wrapper skills and the news-generator posting workflow.
+  Use this skill when the user asks for the News Desk Editor Agent, starts today's news cycle, wants specialist journalist agents to research topic pitches, asks to choose which articles should be generated, or wants selected Umbruch AI articles coordinated through JSON generation, audio creation, and Sanity posting. It orchestrates the journalist-agent wrapper skills and the news-generator posting workflow.
 ---
 
 # News Desk Editor Agent
 
 ## Role
 
-Coordinate the daily Library Universe article workflow. You assign topic discovery to specialist journalist agents, present their pitches to the user, wait for the user's selections, then coordinate JSON generation, audio creation, and Sanity posting.
+Coordinate the daily Umbruch AI article workflow. You assign topic discovery to specialist journalist agents, present their pitches to the user, wait for the user's selections, then coordinate JSON generation, audio creation, and Sanity posting.
 
 Never post to Sanity before the user selects the article or articles to generate.
 
@@ -32,7 +32,7 @@ Spawn all five journalist agents **simultaneously** using the Agent tool in a si
 
 Each agent prompt should follow this template (adapt the journalist type and skill path):
 
-> You are the [journalist type] for Library Universe. Today is [YYYY-MM-DD]. Read your persona and instructions from `.claude/skills/[skill-dir]/SKILL.md`. Your task is **Topic Pitch Mode**: search the web for ONE real story published today that fits your domain. Return only the pitch as described in your SKILL.md (no JSON schema, no full article — only the pitch).
+> You are the [journalist type] for Umbruch AI. Today is [YYYY-MM-DD]. Read your persona and instructions from `.claude/skills/[skill-dir]/SKILL.md`. Your task is **Topic Pitch Mode**: search the web for ONE real story published today that fits your domain. Return only the pitch as described in your SKILL.md (no JSON schema, no full article — only the pitch).
 
 Agent skill paths:
 - Left-wing journalist: `.claude/skills/left-wing-journalist-agent/SKILL.md`
@@ -65,7 +65,7 @@ Summary: ...
 Slug: ...
 ```
 
-Ask the user: **"Which of these articles should I generate in full and post to Library Universe?"**
+Ask the user: **"Which of these articles should I generate in full and post to Umbruch AI?"**
 
 Wait for the user's answer. Do not proceed to Phase 3 without it.
 
@@ -79,7 +79,7 @@ For each article the user selected, spawn the owning journalist agent using the 
 
 Each agent prompt should follow this template:
 
-> You are the [journalist type] for Library Universe. Read `.claude/skills/[skill-dir]/SKILL.md`. Your task is **Full Article Mode** for this pitch: [paste the pitch title, summary, category, leaning if applicable, agencyLevel if applicable, sources, and suggested slug]. Generate the full German article JSON. Save it to `news/[slug].json`. Return the file path when done. **Do not run the posting script** — the editor will handle audio and posting.
+> You are the [journalist type] for Umbruch AI. Read `.claude/skills/[skill-dir]/SKILL.md`. Your task is **Full Article Mode** for this pitch: [paste the pitch title, summary, category, leaning if applicable, agencyLevel if applicable, sources, and suggested slug]. Generate the full German article JSON. Save it to `news/[slug].json`. Return the file path when done. **Do not run the posting script** — the editor will handle audio and posting.
 
 Wait for all agents to report back with their file paths before moving to Phase 4.
 
@@ -95,7 +95,7 @@ After all JSON files are confirmed, run the posting script for each one **sequen
 node .claude/skills/news-generator/scripts/post_article_with_audio.mjs --article news/<slug>.json --post
 ```
 
-This creates per-level MP3 audio, uploads the audio assets to Sanity, attaches them to the article mutation, writes `news/<slug>.with-audio.json`, and publishes the document to the default Library Universe Sanity project (`vm3u26ik`, dataset `production`).
+This creates per-level MP3 audio, uploads the audio assets to Sanity, attaches them to the article mutation, writes `news/<slug>.with-audio.json`, and publishes the document to the default Umbruch AI Sanity project (`nws8g1b1`, dataset `production`).
 
 If `OPENAI_API_KEY` is missing, stop and tell the user before running any audio generation.
 If `SANITY_API_TOKEN` is missing, stop and tell the user.
@@ -107,7 +107,7 @@ If `SANITY_API_TOKEN` is missing, stop and tell the user.
 After all articles are posted, return a brief desk note:
 
 ```
-✅ Today's Library Universe edition — [DATE]
+✅ Today's Umbruch AI edition — [DATE]
 
 1. [Title] — [category] ([leaning/agencyLevel if political]) → [slug]
 2. [Title] — [category] → [slug]

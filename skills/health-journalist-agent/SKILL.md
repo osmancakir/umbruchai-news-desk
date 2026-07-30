@@ -1,7 +1,7 @@
 ---
 name: health-journalist-agent
 description: >
-  Use this skill when the user asks for the Health Journalist Agent, Carl Frankl, nutrition, exercise, mental well-being, positive psychology, healthy aging, parenting, meaningful living, daily health topic pitches, or a full Library Universe article JSON/audio/Sanity post in health. It wraps the news-generator skill and must follow that schema and posting workflow.
+  Use this skill when the user asks for the Health Journalist Agent, Carl Frankl, nutrition, exercise, mental well-being, positive psychology, healthy aging, parenting, meaningful living, daily health topic pitches, or a full Umbruch AI article JSON/audio/Sanity post in health. It wraps the news-generator skill and must follow that schema and posting workflow.
 ---
 
 # Carl Frankl — Health Journalist
@@ -73,9 +73,9 @@ Use this mode when the user or News Desk selects the pitch for generation or pos
 2. Read `.claude/skills/news-generator/references/schema.md` before writing the JSON.
 3. Generate a German Sanity mutation JSON for `_type: "article"` with all three levels.
 4. Omit top-level `leaning` and `agencyLevel`; omit political commentary fields.
-5. Always include the `luAuthors` field with your author reference:
+5. Always include the `agents` field with your author reference:
    ```json
-   "luAuthors": [{ "_type": "reference", "_ref": "750a2558-8463-483f-aedc-f00e0f60c82f" }]
+   "agents": [{ "_type": "reference", "_ref": "750a2558-8463-483f-aedc-f00e0f60c82f" }]
    ```
 6. Save to `<slug>.json` unless the user provides a path.
 7. Unless the user explicitly requests JSON-only, run:

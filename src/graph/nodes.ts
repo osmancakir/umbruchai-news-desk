@@ -204,7 +204,7 @@ ${ARTICLE_SCHEMA_REFERENCE}
 
 IMPORTANT: Return ONLY valid JSON — no markdown fences, no preamble, no trailing text.`
 
-  const userPrompt = `Generate the full German Library Universe article for this pitch:
+  const userPrompt = `Generate the full German Umbruch AI article for this pitch:
 
 ${pitchContext}
 
@@ -291,7 +291,7 @@ export function routeGeneratedArticlesToValidation(state: State): Send[] {
 // Validation & correction phase
 // ─────────────────────────────────────────────
 
-const VALIDATOR_SYSTEM_PROMPT = `You are a German-language article validator and fixer for the Library Universe news platform.
+const VALIDATOR_SYSTEM_PROMPT = `You are a German-language article validator and fixer for the Umbruch AI news platform.
 
 Validate the given article JSON against the schema, fix ALL issues, and call submit_validated_article with the corrected JSON string.
 
@@ -328,7 +328,7 @@ Ensure the mutations object has all of these in the create document:
 - summary: { easy, medium, advanced }
 - commentary: politics-economics → each level has { humanConcern, opposingView, prompt }; all other categories → each level has { prompt } only
 - aiAuthor: array
-- luAuthors: array of { _type: "reference", _ref: string }
+- agents: array of { _type: "reference", _ref: string }
 - sources: array of { name, href, initials }
 - levels: { easy, medium, advanced } — each with content (≥8 blocks), questions (≥4), vocabulary (≥6)
 
@@ -720,7 +720,7 @@ export async function postAllArticles(state: State): Promise<Partial<State>> {
 // ─────────────────────────────────────────────
 
 export function finalNote(state: State): Partial<State> {
-  const lines = [`\n${'═'.repeat(60)}`, `✅ TODAY'S LIBRARY UNIVERSE EDITION — ${state.date}`, `${'═'.repeat(60)}`]
+  const lines = [`\n${'═'.repeat(60)}`, `✅ TODAY'S UMBRUCH AI EDITION — ${state.date}`, `${'═'.repeat(60)}`]
 
   for (const result of state.postResults) {
     const icon = result.success ? '✓' : '✗'

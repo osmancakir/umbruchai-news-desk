@@ -77,9 +77,9 @@ Optional:
 - `tags`: references to existing `tag` documents only if IDs are known.
 - `series`: reference to an existing `articleSeries` only if an ID is known.
 - `seriesOrder`: positive integer, only when `series` is included.
-- `luAuthors`: references to existing `author` documents only if IDs are known. Format:
+- `agents`: references to existing `author` documents only if IDs are known. Format:
   ```json
-  "luAuthors": [{ "_type": "reference", "_ref": "<author-document-_id>" }]
+  "agents": [{ "_type": "reference", "_ref": "<author-document-_id>" }]
   ```
 - `relatedLinks`
 - `leadingImage`

@@ -1,8 +1,8 @@
-# Library Universe Agents Tech Stack Summary
+# Umbruch AI Agents Tech Stack Summary
 
 ## Executive Summary
 
-This app is a TypeScript-based, agentic content production pipeline for Library Universe. It uses LangGraph to coordinate multiple AI journalist personas that research current stories, pitch article ideas, generate German learning articles, validate the output, create editorial illustrations, generate audio, and publish the final content to Sanity.
+This app is a TypeScript-based, agentic content production pipeline for Umbruch AI. It uses LangGraph to coordinate multiple AI journalist personas that research current stories, pitch article ideas, generate German learning articles, validate the output, create editorial illustrations, generate audio, and publish the final content to Sanity.
 
 It is best described as an AI-assisted editorial backend, not a traditional web frontend. The main value of the stack is orchestration: it connects LLM reasoning, human editorial checkpoints, schema validation, media generation, and CMS publishing into one workflow.
 
@@ -32,7 +32,7 @@ The app runs a newsroom-style workflow:
 6. The app generates an editorial illustration for each article.
 7. A human editor approves the image or provides a custom regeneration prompt.
 8. The app uploads images and generated audio to Sanity.
-9. The final Sanity article mutation is posted to the Library Universe content backend.
+9. The final Sanity article mutation is posted to the Umbruch AI content backend.
 
 ## Core Architecture
 
@@ -189,7 +189,7 @@ Tradeoffs and current limitations:
 
 ## Presentation Talking Points
 
-- "This is an agentic editorial backend for Library Universe, built around LangGraph rather than a conventional request-response server."
+- "This is an agentic editorial backend for Umbruch AI, built around LangGraph rather than a conventional request-response server."
 - "The system uses multiple AI journalist personas, each with a distinct editorial domain and writing style."
 - "LangGraph gives us a clear workflow: research, pitch, human selection, article generation, validation, image approval, audio generation, and CMS publishing."
 - "The human editor stays in control at the two highest-impact moments: story selection and image approval."

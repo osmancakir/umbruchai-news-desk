@@ -1,8 +1,8 @@
 ---
 name: news-generator
 description: >
-  Generates a fully-structured Library Universe article JSON payload for German-language news and learning content,
-  and can generate per-level text-to-speech audio files and post the finished article to Library Universe/Sanity.
+  Generates a fully-structured Umbruch AI article JSON payload for German-language news and learning content,
+  and can generate per-level text-to-speech audio files and post the finished article to Umbruch AI/Sanity.
   Use this skill whenever the user asks to generate a news article, create an article JSON, create news content,
   publish or post a generated article, create article TTS audio, or provides a supported article category such as
   politics-economics, culture, health, history, philosophy, science, society, sports, technology, or environment.
@@ -12,7 +12,7 @@ description: >
 
 # News Generator Skill
 
-Generate a real, sourced, multilevel German-language `article` document JSON for the Library Universe app.
+Generate a real, sourced, multilevel German-language `article` document JSON for the Umbruch AI app.
 
 ## Inputs
 
@@ -99,13 +99,13 @@ Unless the user explicitly asks for JSON-only output, run the bundled Node scrip
 node .claude/skills/news-generator/scripts/post_article_with_audio.mjs --article <path-to-json> --post
 ```
 
-The script converts `levels.easy.content`, `levels.medium.content`, and `levels.advanced.content` to speech text, creates `news/audios/<slug>_<level>.mp3`, uploads those files as Sanity file assets, attaches each asset to `levels.<level>.audio`, writes `<slug>.with-audio.json`, and posts the enriched mutation to Library Universe/Sanity.
+The script converts `levels.easy.content`, `levels.medium.content`, and `levels.advanced.content` to speech text, creates `news/audios/<slug>_<level>.mp3`, uploads those files as Sanity file assets, attaches each asset to `levels.<level>.audio`, writes `<slug>.with-audio.json`, and posts the enriched mutation to Umbruch AI/Sanity.
 
 Requirements:
 
 - `OPENAI_API_KEY` for text-to-speech.
 - `SANITY_API_TOKEN` for audio asset upload and mutation posting.
-- Default Sanity target: project `vm3u26ik`, dataset `production`, API version `2025-02-19`; override with script flags only when the user asks.
+- Default Sanity target: project `nws8g1b1`, dataset `production`, API version `2025-02-19`; override with script flags only when the user asks.
 
 Use `--dry-run` only to validate the script against a JSON file without OpenAI or Sanity calls. Use `--upload` instead of `--post` only when the user wants assets uploaded and an enriched mutation file written without publishing the document.
 

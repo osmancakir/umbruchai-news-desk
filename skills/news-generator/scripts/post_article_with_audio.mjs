@@ -6,7 +6,7 @@ import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
 const ARTICLE_LEVELS = ['easy', 'medium', 'advanced']
-const DEFAULT_PROJECT_ID = 'vm3u26ik'
+const DEFAULT_PROJECT_ID = 'nws8g1b1'
 const DEFAULT_DATASET = 'production'
 const DEFAULT_API_VERSION = '2025-02-19'
 const DEFAULT_TTS_MODEL = 'tts-1'
@@ -35,7 +35,7 @@ const MIME_BY_EXT = new Map([
 
 function printUsage() {
   console.log(`
-Generate per-level TTS audio for a Library Universe article, attach Sanity file refs, and optionally post it.
+Generate per-level TTS audio for an Umbruch AI article, attach Sanity file refs, and optionally post it.
 
 Usage:
   node scripts/post_article_with_audio.mjs --article <mutation-json> [options]

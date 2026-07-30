@@ -5,8 +5,9 @@ as graded German reading material, illustrates them, narrates them, and publishe
 to a CMS. Five journalist personas pitch, a human editor picks, and the pipeline carries
 the selected stories to production.
 
-This is the editorial backend of [Library Universe](https://libraryuniverse.com), a news
-platform for German learners. It runs in production.
+This is the editorial backend of [Umbruch AI](https://umbruch.ai), a German-language
+news platform that publishes each story across three reading levels. It runs in
+production.
 
 ## Why it is interesting
 
@@ -99,7 +100,7 @@ prompted to select pitches and to approve each illustration.
 
 Publishing targets a Sanity dataset with an `article` schema and `author` documents. The
 expected payload shape is in [`src/schema.ts`](src/schema.ts). Point it at your own
-project via `SANITY_PROJECT_ID` and update the `luAuthors` references in the persona
+project via `SANITY_PROJECT_ID` and update the `agents` references in the persona
 prompts to your own author document IDs.
 
 ## Also here

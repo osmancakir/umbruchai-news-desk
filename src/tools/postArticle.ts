@@ -1,7 +1,7 @@
 const ARTICLE_LEVELS = ['easy', 'medium', 'advanced'] as const
 type Level = (typeof ARTICLE_LEVELS)[number]
 
-const DEFAULT_PROJECT_ID = 'vm3u26ik'
+const DEFAULT_PROJECT_ID = 'nws8g1b1'
 const DEFAULT_DATASET = 'production'
 const DEFAULT_API_VERSION = '2025-02-19'
 const DEFAULT_TTS_MODEL = 'tts-1'

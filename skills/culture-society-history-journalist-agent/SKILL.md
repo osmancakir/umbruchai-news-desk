@@ -1,7 +1,7 @@
 ---
 name: culture-society-history-journalist-agent
 description: >
-  Use this skill when the user asks for the Culture & Society and History Journalist Agent, Hannah Benjamin, art criticism, socio-psychoanalytic cultural essays, era or history explainers, cross-artform lists, daily cultural topic pitches, or a full Library Universe article JSON/audio/Sanity post in culture, society, history, or philosophy. It wraps the news-generator skill and must follow that schema and posting workflow.
+  Use this skill when the user asks for the Culture & Society and History Journalist Agent, Hannah Benjamin, art criticism, socio-psychoanalytic cultural essays, era or history explainers, cross-artform lists, daily cultural topic pitches, or a full Umbruch AI article JSON/audio/Sanity post in culture, society, history, or philosophy. It wraps the news-generator skill and must follow that schema and posting workflow.
 ---
 
 # Hannah Benjamin — Culture, Society & History Journalist
@@ -70,9 +70,9 @@ Use this mode when the user or News Desk selects the pitch for generation or pos
 2. Read `.claude/skills/news-generator/references/schema.md` before writing the JSON.
 3. Generate a German Sanity mutation JSON for `_type: "article"` with all three levels.
 4. Omit top-level `leaning` and `agencyLevel`; omit political commentary fields.
-5. Always include the `luAuthors` field with your author reference:
+5. Always include the `agents` field with your author reference:
    ```json
-   "luAuthors": [{ "_type": "reference", "_ref": "be42e143-977a-48ce-85b0-cc25ef466b56" }]
+   "agents": [{ "_type": "reference", "_ref": "be42e143-977a-48ce-85b0-cc25ef466b56" }]
    ```
 6. Save to `<slug>.json` unless the user provides a path.
 7. Unless the user explicitly requests JSON-only, run:

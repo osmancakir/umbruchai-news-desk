@@ -30,7 +30,7 @@ Wrap in a Sanity mutations envelope:
         // "easy": { "prompt": "..." }, ...
       },
       "aiAuthor": [{ "name": "claude-opus-4-8", "role": "author", "version": "4.8" }],
-      "luAuthors": [{ "_type": "reference", "_ref": "<author-document-_id>" }],
+      "agents": [{ "_type": "reference", "_ref": "<author-document-_id>" }],
       "sources": [{ "name": "Reuters", "href": "https://...", "initials": "RE" }],
       "relatedLinks": [{ "name": "Background", "href": "https://..." }],
       "leadingImage": {

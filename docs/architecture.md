@@ -1,6 +1,6 @@
-# Library Universe News Desk Architecture
+# Umbruch AI News Desk Architecture
 
-This app is a LangGraph-based multi-agent news desk for generating and publishing German Library Universe news articles. It does create different journalist agents, but they are not long-lived service objects. They are runtime LLM agents created from journalist personas during each graph run.
+This app is a LangGraph-based multi-agent news desk for generating and publishing German-language news articles for Umbruch AI. It does create different journalist agents, but they are not long-lived service objects. They are runtime LLM agents created from journalist personas during each graph run.
 
 ## Short Answer
 
@@ -237,7 +237,7 @@ Optional:
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
-| `SANITY_PROJECT_ID` | `vm3u26ik` | Sanity project ID. |
+| `SANITY_PROJECT_ID` | `nws8g1b1` | Sanity project ID. |
 | `SANITY_DATASET` | `production` | Sanity dataset. |
 | `SANITY_API_VERSION` | `2025-02-19` | Sanity API version. |
 | `OPENAI_TTS_MODEL` | `tts-1` | Text-to-speech model. |
@@ -261,7 +261,7 @@ Each persona in `src/personas.ts` includes:
 
 Political journalists include `leaning`, `agencyLevel`, `humanConcern`, and `opposingView`. Non-political journalists omit those fields.
 
-Each article prompt also hard-codes the corresponding `luAuthors` Sanity author reference.
+Each article prompt also hard-codes the corresponding `agents` Sanity author reference.
 
 ## How To Add A Journalist
 
@@ -270,7 +270,7 @@ To add another journalist, update all of these places:
 1. Add a new ID to the `JournalistId` union in `src/types.ts`.
 2. Add that ID to `ALL_JOURNALIST_IDS` in `src/types.ts`.
 3. Add a matching entry to `JOURNALIST_PERSONAS` in `src/personas.ts`.
-4. Make sure the persona's `articleSystemPrompt` includes the correct Sanity `luAuthors` reference.
+4. Make sure the persona's `articleSystemPrompt` includes the correct Sanity `agents` reference.
 5. Confirm the prompt's category rules match the allowed category values in `src/schema.ts`.
 
 After that, the graph will automatically include the new journalist in the pitch fan-out because `kickoffPitching()` maps over `ALL_JOURNALIST_IDS`.

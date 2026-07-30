@@ -1,5 +1,5 @@
 {
-  "name": "libraryuniverse-news-desk",
+  "name": "umbruchai-news-desk",
   "version": "1.0.0",
   "description": "LangGraph multi-agent news desk: five journalist personas research, pitch, write, illustrate, narrate and publish graded German news articles",
   "type": "module",
