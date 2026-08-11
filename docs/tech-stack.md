@@ -73,7 +73,7 @@ OpenAI hosted web search is wrapped in `src/tools/search.ts` and used during pit
 
 ## Journalist Persona System
 
-The journalist system lives in `src/personas.ts` and `src/types.ts`.
+The journalist system lives in `src/personas.ts`, `prompts/`, and `src/types.ts`, and is shared with the Agent Skills in `skills/`.
 
 The configured personas are:
 
@@ -85,7 +85,11 @@ The configured personas are:
 | `health` | Carl Frankl | Health, wellbeing, parenting, aging |
 | `science-technology` | Isaac Sagan | Science, technology, environment |
 
-Each persona has its own pitch prompt, article prompt, allowed categories, and Sanity author reference. This makes the system extensible: adding a new journalist mostly means adding a new persona and extending the journalist ID list.
+Each persona has its own prose, allowed categories, and Sanity author reference. The prose lives as markdown fragments under `prompts/<journalist-id>/` (`persona.md`, `beat.md`, `research.md`), so editorial voice is edited as content rather than as TypeScript string literals.
+
+Those fragments are the single source of truth for both execution paths. `src/personas.ts` composes them into the graph's pitch and article system prompts at startup, and `src/scripts/build-skills.ts` generates the Agent Skills in `skills/` from the same fragments (`npm run build:skills`, verified by `npm run check:skills`). Previously the same persona prose was maintained separately in both places and could drift.
+
+This makes the system extensible: adding a new journalist mostly means adding a profile, three prompt fragments, a skill template, and extending the journalist ID list.
 
 ## Content And Schema Strategy
 
@@ -206,7 +210,10 @@ Tradeoffs and current limitations:
 | `src/graph/index.ts` | Main graph structure |
 | `src/graph/state.ts` | Workflow state and reducers |
 | `src/graph/nodes.ts` | Main workflow implementation |
-| `src/personas.ts` | Journalist persona prompts and author mapping |
+| `src/personas.ts` | Journalist profiles, author mapping, and prompt composition |
+| `src/prompts.ts` | Prompt fragment loading and placeholder rendering |
+| `src/scripts/build-skills.ts` | Generates `skills/*/SKILL.md` from `prompts/` |
+| `prompts/` | Single source of truth for persona prose, shared by graph and skills |
 | `src/types.ts` | Shared TypeScript types |
 | `src/schema.ts` | Article schema reference given to the LLM |
 | `src/tools/search.ts` | OpenAI web search tool wrapper |

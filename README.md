@@ -68,8 +68,12 @@ both framings, and each is required to state the opposing view. Political articl
 `leaning`, `agencyLevel`, `humanConcern`, and `opposingView` fields; non-political ones are
 required not to.
 
-Personas live in [`src/personas.ts`](src/personas.ts). Adding a sixth journalist is four
-edits and no graph changes, since the pitch fan-out maps over `ALL_JOURNALIST_IDS`.
+Persona prose lives in [`prompts/`](prompts/) as markdown — `persona.md`, `beat.md`, and
+`research.md` per journalist — and is the single source for **both** execution paths: the
+graph composes its system prompts from those fragments, and the Agent Skills in
+[`skills/`](skills/) are generated from them. The non-prose facts (emoji, categories, Sanity
+author reference) stay in [`src/personas.ts`](src/personas.ts). Adding a sixth journalist is
+a few edits and no graph changes, since the pitch fan-out maps over `ALL_JOURNALIST_IDS`.
 
 ## What an article has to contain
 
@@ -100,14 +104,22 @@ prompted to select pitches and to approve each illustration.
 
 Publishing targets a Sanity dataset with an `article` schema and `author` documents. The
 expected payload shape is in [`src/schema.ts`](src/schema.ts). Point it at your own
-project via `SANITY_PROJECT_ID` and update the `agents` references in the persona
-prompts to your own author document IDs.
+project via `SANITY_PROJECT_ID` and update the `agentRef` values in
+[`src/personas.ts`](src/personas.ts) to your own author document IDs.
 
 ## Also here
 
 [`skills/`](skills/) holds the same newsroom as Agent Skills for Claude Code and other
 compatible agents: one skill per journalist, plus an editor and a generator skill. The
 graph is the automated path; the skills are the conversational one.
+
+Both paths describe the same five journalists, so the journalist and editor `SKILL.md`
+files are **generated** from [`prompts/`](prompts/) rather than maintained by hand:
+
+```bash
+npm run build:skills   # regenerate skills/*/SKILL.md after editing prompts/
+npm run check:skills   # exit 1 if a checked-in SKILL.md is stale
+```
 
 ## Notes and limits
 

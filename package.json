@@ -6,7 +6,9 @@
   "scripts": {
     "start": "langgraphjs dev",
     "dev": "langgraphjs dev",
-    "studio": "langgraphjs dev"
+    "studio": "langgraphjs dev",
+    "build:skills": "tsx src/scripts/build-skills.ts",
+    "check:skills": "tsx src/scripts/build-skills.ts --check"
   },
   "dependencies": {
     "@langchain/anthropic": "^1.4.0",

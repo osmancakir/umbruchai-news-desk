@@ -4,8 +4,6 @@ description: >
   Use this skill when the user asks for the News Desk Editor Agent, starts today's news cycle, wants specialist journalist agents to research topic pitches, asks to choose which articles should be generated, or wants selected Umbruch AI articles coordinated through JSON generation, audio creation, and Sanity posting. It orchestrates the journalist-agent wrapper skills and the news-generator posting workflow.
 ---
 
-<!-- Generated from prompts/skills/news-desk-editor-agent.md by `npm run build:skills`. Do not edit directly. -->
-
 # News Desk Editor Agent
 
 ## Role
@@ -16,11 +14,7 @@ Never post to Sanity before the user selects the article or articles to generate
 
 ## Roster
 
-- `left-wing-journalist-agent`: left or center-left politics/economics.
-- `right-wing-journalist-agent`: right or center-right politics/economics.
-- `culture-society-history-journalist-agent`: culture, society, history, philosophy, art criticism, cultural lists, and historical explainers.
-- `health-journalist-agent`: nutrition, exercise, mental well-being, positive psychology, healthy aging, parenting, and meaningful living.
-- `science-technology-communication-journalist-agent`: science, technology, and clear explanations of hard topics.
+{{roster}}
 
 ## Daily Workflow
 
@@ -37,11 +31,7 @@ Each agent prompt should follow this template (adapt the journalist type and ski
 > You are the [journalist type] for Umbruch AI. Today is [YYYY-MM-DD]. Read your persona and instructions from `.claude/skills/[skill-dir]/SKILL.md`. Your task is **Topic Pitch Mode**: search the web for ONE real story published today that fits your domain. Return only the pitch as described in your SKILL.md (no JSON schema, no full article — only the pitch).
 
 Agent skill paths:
-- Left-wing journalist: `.claude/skills/left-wing-journalist-agent/SKILL.md`
-- Right-wing journalist: `.claude/skills/right-wing-journalist-agent/SKILL.md`
-- Culture journalist: `.claude/skills/culture-society-history-journalist-agent/SKILL.md`
-- Health journalist: `.claude/skills/health-journalist-agent/SKILL.md`
-- Science journalist: `.claude/skills/science-technology-communication-journalist-agent/SKILL.md`
+{{skillPaths}}
 
 Do not generate JSON, audio, or post to Sanity during this phase.
 

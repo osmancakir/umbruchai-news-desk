@@ -6,7 +6,7 @@ This app is a LangGraph-based multi-agent news desk for generating and publishin
 
 Yes. The app creates a separate journalist agent for each configured journalist during the pitch phase.
 
-The journalists are defined in `src/personas.ts` and enumerated in `src/types.ts`:
+The journalists are defined in `src/personas.ts` (identity and beat data) plus `prompts/` (their prose), and enumerated in `src/types.ts`:
 
 - `left-wing`: George Bourdieu
 - `right-wing`: William F. Brooks
@@ -25,7 +25,10 @@ The full article generation phase does not use `createAgent`; it uses a direct c
 | `src/graph/index.ts` | Builds and compiles the LangGraph workflow. |
 | `src/graph/state.ts` | Defines graph state, reducers, and defaults. |
 | `src/graph/nodes.ts` | Implements pitch, human selection, article generation, validation, publishing, and final summary nodes. |
-| `src/personas.ts` | Defines journalist identities, domains, prompts, and Sanity author references. |
+| `src/personas.ts` | Defines journalist identities, domains, and Sanity author references; composes their system prompts. |
+| `src/prompts.ts` | Reads and renders prompt fragments from `prompts/`. |
+| `src/scripts/build-skills.ts` | Generates `skills/*/SKILL.md` from `prompts/`. |
+| `prompts/` | Single source of truth for editorial prose, shared by the graph and the Agent Skills. |
 | `src/types.ts` | Defines journalist IDs, pitch shape, and post result shape. |
 | `src/tools/search.ts` | Creates OpenAI hosted web search tools for model calls. |
 | `src/tools/postArticle.ts` | Uploads approved images, generates audio, uploads audio files to Sanity, and posts article mutations. |
@@ -248,7 +251,9 @@ Optional:
 
 ## Journalist Personas
 
-Each persona in `src/personas.ts` includes:
+A persona is assembled from two places: a data profile in `src/personas.ts` and prose fragments in `prompts/`.
+
+`JOURNALIST_PROFILES` in `src/personas.ts` holds the non-prose facts:
 
 - `id`: one of the `JournalistId` union values
 - `displayName`: editor-facing label
@@ -256,12 +261,34 @@ Each persona in `src/personas.ts` includes:
 - `characterName`: author name
 - `categories`: allowed subject domains
 - `isPolitical`: whether political fields are expected
-- `pitchSystemPrompt`: used by the pitch agent
-- `articleSystemPrompt`: used by article generation
+- `agentRef`: Sanity author document id used in the article's `agents` reference
+- `skillDir`, `shortLabel`, `beatSummary`: used to generate the Agent Skills
+
+`prompts/<journalist-id>/` holds the prose, split by what it describes rather than by which phase uses it:
+
+- `persona.md`: voice, inspirations, profile
+- `beat.md`: role, editorial range, geography, category and field rules
+- `research.md`: what story to look for, preferred sources, verification bar
+
+At import time `src/personas.ts` composes those fragments into the two system prompts:
+
+- `pitchSystemPrompt` = persona + beat + research + `_shared/graph-pitch-task.md`
+- `articleSystemPrompt` = persona + beat + `_shared/graph-article-task.md`
+
+`{{...}}` placeholders are substituted during rendering (`{{articleSchemaRules}}`, `{{agentRef}}`, `{{characterName}}`). A missing file or unknown placeholder throws on startup rather than mid-run. Nothing downstream changes: nodes still read `persona.pitchSystemPrompt` and `persona.articleSystemPrompt`.
 
 Political journalists include `leaning`, `agencyLevel`, `humanConcern`, and `opposingView`. Non-political journalists omit those fields.
 
-Each article prompt also hard-codes the corresponding `agents` Sanity author reference.
+### Shared with the Agent Skills
+
+The skills in `skills/` describe the same five journalists. To keep one source of truth, the five journalist `SKILL.md` files and the editor's roster are **generated** from the same fragments by `src/scripts/build-skills.ts`:
+
+```bash
+npm run build:skills   # write skills/*/SKILL.md
+npm run check:skills   # exit 1 if any checked-in SKILL.md is stale
+```
+
+Each skill has a template at `prompts/skills/<skill-dir>.md` holding its frontmatter and skill-specific workflow, with `{{persona}}`, `{{beat}}`, `{{research}}`, and `{{fullArticleMode}}` filled in at build time. Skills are generated rather than reading `prompts/` at runtime because they are copied into `.claude/skills/` to be used and must stay self-contained. `news-generator` is hand-written and not generated.
 
 ## How To Add A Journalist
 
@@ -269,8 +296,8 @@ To add another journalist, update all of these places:
 
 1. Add a new ID to the `JournalistId` union in `src/types.ts`.
 2. Add that ID to `ALL_JOURNALIST_IDS` in `src/types.ts`.
-3. Add a matching entry to `JOURNALIST_PERSONAS` in `src/personas.ts`.
-4. Make sure the persona's `articleSystemPrompt` includes the correct Sanity `agents` reference.
+3. Add a matching entry to `JOURNALIST_PROFILES` in `src/personas.ts`, pointing `agentRef` at the correct Sanity author document.
+4. Write `prompts/<journalist-id>/persona.md`, `beat.md`, and `research.md`, plus a skill template at `prompts/skills/<skill-dir>.md`, then run `npm run build:skills`.
 5. Confirm the prompt's category rules match the allowed category values in `src/schema.ts`.
 
 After that, the graph will automatically include the new journalist in the pitch fan-out because `kickoffPitching()` maps over `ALL_JOURNALIST_IDS`.
