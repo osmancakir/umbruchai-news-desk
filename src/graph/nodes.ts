@@ -11,6 +11,11 @@ import { ARTICLE_SCHEMA_REFERENCE } from '../schema.js'
 import { createWebSearchTool } from '../tools/search.js'
 import { postArticleWithAudio, uploadBase64ImageToSanity } from '../tools/postArticle.js'
 import { ALL_JOURNALIST_IDS } from '../types.js'
+import {
+  normalizeArticlePayload,
+  validateArticle,
+  validateArticleReplacement,
+} from '../articleValidation.js'
 
 
 // ─────────────────────────────────────────────
@@ -293,7 +298,7 @@ export function routeGeneratedArticlesToValidation(state: State): Send[] {
 
 const VALIDATOR_SYSTEM_PROMPT = `You are a German-language article validator and fixer for the Umbruch AI news platform.
 
-Validate the given article JSON against the schema, fix ALL issues, and call submit_validated_article with the corrected JSON string.
+Validate the given article JSON against the schema, fix ALL issues, and call submit_validated_article with the corrected JSON string. If the tool rejects the result, correct every reported issue and call it again.
 
 ## CRITICAL: Level completeness (highest priority fix)
 Every article MUST have all three levels (easy, medium, advanced), and EVERY level MUST contain:
@@ -342,59 +347,7 @@ Ensure the mutations object has all of these in the create document:
 ## Instructions
 1. Identify all issues (character encoding, missing fields, schema violations, missing questions/vocabulary per level)
 2. Fix every issue — generate missing questions and vocabulary from article content when needed
-3. Call submit_validated_article exactly once with the corrected full JSON string and the list of issues fixed`
-
-const LEVELS = ['easy', 'medium', 'advanced'] as const
-
-function checkLevelCompleteness(article: unknown): string[] {
-  const issues: string[] = []
-
-  const doc = (() => {
-    if (!article || typeof article !== 'object') return null
-    const p = article as { mutations?: Array<{ createOrReplace?: unknown; create?: unknown }> }
-    if (Array.isArray(p.mutations)) {
-      for (const m of p.mutations) {
-        const d = (m.createOrReplace ?? m.create) as { _type?: string } | undefined
-        if (d?._type === 'article') return d as Record<string, unknown>
-      }
-    }
-    if ((article as { _type?: string })._type === 'article') return article as Record<string, unknown>
-    return null
-  })()
-
-  if (!doc) {
-    issues.push('Could not locate article document inside mutations envelope')
-    return issues
-  }
-
-  const levels = doc.levels as Record<string, Record<string, unknown[]>> | undefined
-  if (!levels) {
-    issues.push('levels field is entirely missing')
-    return issues
-  }
-
-  for (const level of LEVELS) {
-    const lvl = levels[level] as Record<string, unknown[]> | undefined
-    if (!lvl) {
-      issues.push(`levels.${level} is missing`)
-      continue
-    }
-    const q = lvl.questions
-    const v = lvl.vocabulary
-    const c = lvl.content
-    if (!Array.isArray(q) || q.length < 4) {
-      issues.push(`levels.${level}.questions has ${Array.isArray(q) ? q.length : 0} item(s) — minimum 4 required`)
-    }
-    if (!Array.isArray(v) || v.length < 6) {
-      issues.push(`levels.${level}.vocabulary has ${Array.isArray(v) ? v.length : 0} item(s) — minimum 6 required`)
-    }
-    if (!Array.isArray(c) || c.length < 8) {
-      issues.push(`levels.${level}.content has ${Array.isArray(c) ? c.length : 0} block(s) — minimum 8 required`)
-    }
-  }
-
-  return issues
-}
+3. Call submit_validated_article with the corrected full JSON string and the list of issues fixed; do not finish until the tool accepts it`
 
 export async function validateAndFixArticle(state: State): Promise<Partial<State>> {
   const journalistId = state.activeJournalistId
@@ -408,10 +361,10 @@ export async function validateAndFixArticle(state: State): Promise<Partial<State
 
   console.log(`\n[🔍 Validator] Checking article from ${persona.characterName}...`)
 
-  const levelIssues = checkLevelCompleteness(article)
-  if (levelIssues.length > 0) {
-    console.warn(`[🔍 Validator] ⚠️  LEVEL COMPLETENESS ISSUES detected in ${persona.characterName}'s article:`)
-    for (const issue of levelIssues) {
+  const originalIssues = validateArticle(article)
+  if (originalIssues.length > 0) {
+    console.warn(`[🔍 Validator] ⚠️  SCHEMA ISSUES detected in ${persona.characterName}'s article:`)
+    for (const issue of originalIssues) {
       console.warn(`  • ${issue}`)
     }
   }
@@ -421,20 +374,27 @@ export async function validateAndFixArticle(state: State): Promise<Partial<State
   const submitValidatedTool = tool(
     async (args) => {
       try {
-        fixedArticle = JSON.parse(args.fixedJson)
+        const parsed = JSON.parse(args.fixedJson)
+        const normalized = normalizeArticlePayload(parsed).payload
+        const remainingIssues = validateArticleReplacement(article, normalized)
+        if (remainingIssues.length > 0) {
+          return `Error: the corrected JSON is still invalid. Fix every item and call submit_validated_article again:\n- ${remainingIssues.join('\n- ')}`
+        }
+        fixedArticle = normalized
         if (args.issues.length > 0) {
           console.log(`[🔍 Validator] Issues fixed: ${args.issues.join(' | ')}`)
         } else {
           console.log(`[🔍 Validator] No issues found.`)
         }
         return 'Validated article submitted.'
-      } catch {
-        return 'Error: fixedJson is not valid JSON — correct it and call again.'
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error)
+        return `Error: fixedJson could not be accepted (${message}). Correct it and call submit_validated_article again.`
       }
     },
     {
       name: 'submit_validated_article',
-      description: 'Submit the fully corrected article JSON. Call this once when all fixes are applied.',
+      description: 'Submit the fully corrected article JSON. If validation rejects it, fix the reported issues and resubmit.',
       schema: z.object({
         fixedJson: z.string().describe('The complete corrected article JSON as a string'),
         issues: z.array(z.string()).describe('List of issues found and fixed (empty array if none)'),
@@ -456,21 +416,35 @@ export async function validateAndFixArticle(state: State): Promise<Partial<State
   const articleJson = JSON.stringify(article, null, 2)
 
   const levelIssuesPreamble =
-    levelIssues.length > 0
-      ? `DETECTED ISSUES (fix these first):\n${levelIssues.map((i) => `- ${i}`).join('\n')}\n\n`
+    originalIssues.length > 0
+      ? `DETECTED ISSUES (fix these first):\n${originalIssues.map((i) => `- ${i}`).join('\n')}\n\n`
       : ''
 
-  await agent.invoke({
-    messages: [
-      new HumanMessage(
-        `${levelIssuesPreamble}Validate and fix this article JSON. Correct all German character encoding, missing fields, and schema violations, then call submit_validated_article.\n\n${articleJson}`,
-      ),
-    ],
-  })
+  try {
+    await agent.invoke(
+      {
+        messages: [
+          new HumanMessage(
+            `${levelIssuesPreamble}Validate and fix this article JSON. Correct all German character encoding, missing fields, and schema violations, then call submit_validated_article. If the tool reports remaining issues, correct them and resubmit.\n\n${articleJson}`,
+          ),
+        ],
+      },
+      { recursionLimit: 8 },
+    )
+  } catch (error) {
+    if (!fixedArticle && originalIssues.length > 0) throw error
+    const message = error instanceof Error ? error.message : String(error)
+    console.warn(`[🔍 Validator] Validation agent failed after a structurally valid article was available: ${message}`)
+  }
 
   if (!fixedArticle) {
-    console.warn(`[🔍 Validator] Agent did not submit — keeping original article for ${journalistId}.`)
-    return {}
+    if (originalIssues.length === 0) {
+      console.warn(`[🔍 Validator] Agent produced no safe replacement — keeping the valid original article for ${journalistId}.`)
+      return {}
+    }
+    throw new Error(
+      `[Validator] Could not produce a valid article for ${journalistId}: ${originalIssues.join(' | ')}`,
+    )
   }
 
   console.log(`[🔍 Validator] ✓ Validated article for ${persona.characterName}`)

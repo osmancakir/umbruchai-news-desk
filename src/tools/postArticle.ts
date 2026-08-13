@@ -1,3 +1,5 @@
+import { assertValidArticle, normalizeArticlePayload } from '../articleValidation.js'
+
 const ARTICLE_LEVELS = ['easy', 'medium', 'advanced'] as const
 type Level = (typeof ARTICLE_LEVELS)[number]
 
@@ -115,27 +117,6 @@ async function fetchWithRetries(
   }
 
   throw new Error(`${label} failed after ${attempts} attempts`)
-}
-
-function normalizeMutationPayload(raw: unknown): { payload: MutationPayload; doc: ArticleDoc } {
-  if (raw && typeof raw === 'object' && Array.isArray((raw as MutationPayload).mutations)) {
-    const payload = raw as MutationPayload
-    const doc = payload.mutations
-      .map((m) => m.createOrReplace ?? m.create)
-      .find((d) => d?._type === 'article')
-    if (!doc) throw new Error('No _type:"article" document found in mutations')
-    return { payload, doc }
-  }
-
-  const single = raw as ArticleDoc
-  if (single?._type === 'article') {
-    return {
-      payload: { mutations: [{ createOrReplace: single }] },
-      doc: single,
-    }
-  }
-
-  throw new Error('No _type:"article" document found in the JSON payload')
 }
 
 function sanityBlocksToText(blocks: PortableTextBlock[]): string {
@@ -354,7 +335,10 @@ async function postMutations(payload: MutationPayload, options: SanityOptions): 
 }
 
 export async function postArticleWithAudio(rawData: unknown): Promise<string> {
-  const { payload, doc } = normalizeMutationPayload(rawData)
+  const normalized = normalizeArticlePayload(rawData)
+  const payload = normalized.payload as MutationPayload
+  const doc = normalized.doc as ArticleDoc
+  assertValidArticle(payload)
 
   const slug = typeof doc.slug?.current === 'string' ? doc.slug.current.trim() : ''
   if (!slug) throw new Error('Could not read slug.current from article data')

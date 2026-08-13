@@ -8,7 +8,10 @@
     "dev": "langgraphjs dev",
     "studio": "langgraphjs dev",
     "build:skills": "tsx src/scripts/build-skills.ts",
-    "check:skills": "tsx src/scripts/build-skills.ts --check"
+    "check:skills": "tsx src/scripts/build-skills.ts --check",
+    "test:unit": "node --import tsx --test test/unit/*.test.ts",
+    "test:e2e": "node --import tsx --test test/e2e/*.test.ts",
+    "test": "npm run test:unit && npm run test:e2e"
   },
   "dependencies": {
     "@langchain/anthropic": "^1.4.0",
