@@ -189,8 +189,8 @@ Runs sequentially (one article at a time) after all validation branches complete
 ### `generateArticleImage`
 
 1. Finds the first article in `state.articles` that does not yet have an entry in `state.approvedImages`.
-2. If `state.imageCustomPrompts` has an entry for that journalist, uses it as the image prompt; otherwise sends the article title, category, and summary to `gpt-4.1-mini` to craft a short New Yorker magazine-style illustration prompt.
-3. Calls the OpenAI images API with `gpt-image-2`, `1536x1024`, and low quality.
+2. If `state.imageCustomPrompts` has an entry for that journalist, uses it as the image prompt; otherwise sends the article title, category, and summary to `gpt-6-luna` to craft a short New Yorker magazine-style illustration prompt.
+3. Calls the OpenAI images API with `gpt-image-2.5-flare-2026-09-08`, `1536x1024`, and low quality.
 4. Stores the resulting base64 PNG data URL in `state.pendingImages[journalistId]`.
 5. Clears the consumed custom prompt from `state.imageCustomPrompts`.
 
@@ -243,9 +243,9 @@ Optional:
 | `SANITY_PROJECT_ID` | `nws8g1b1` | Sanity project ID. |
 | `SANITY_DATASET` | `production` | Sanity dataset. |
 | `SANITY_API_VERSION` | `2025-02-19` | Sanity API version. |
-| `OPENAI_TTS_MODEL` | `tts-1` | Text-to-speech model. |
+| `OPENAI_TTS_MODEL` | `gpt-4o-mini-tts-2025-12-15` | Text-to-speech model. |
 | `OPENAI_TTS_VOICE` | `alloy` | Text-to-speech voice. |
-| `OPENAI_TTS_SPEED` | `1` | Text-to-speech speed. |
+| `OPENAI_TTS_SPEED` | `1` | Text-to-speech speed. Sent as the `speed` parameter to `tts-1` models and written into the voice instructions for `gpt-4o-mini-tts` models. |
 
 `langgraph.json` points the LangGraph runtime at `.env`.
 

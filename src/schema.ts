@@ -29,7 +29,7 @@ Wrap in a Sanity mutations envelope:
         // all other categories: prompt only
         // "easy": { "prompt": "..." }, ...
       },
-      "aiAuthor": [{ "name": "claude-opus-4-8", "role": "author", "version": "4.8" }],
+      "aiAuthor": [],                   // set by the pipeline; leave empty
       "agents": [{ "_type": "reference", "_ref": "<author-document-_id>" }],
       "sources": [{ "name": "Reuters", "href": "https://...", "initials": "RE" }],
       "relatedLinks": [{ "name": "Background", "href": "https://..." }],

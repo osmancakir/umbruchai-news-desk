@@ -38,7 +38,7 @@ flowchart TD
     PITCH -->|pitches merge into state| PRESENT[presentPitches]
     PRESENT -->|human interrupt: editor selects| GEN[generateArticle<br/>3 reading levels, German]
     GEN --> VALIDATE[validateAndFixArticle<br/>encoding + schema repair]
-    VALIDATE --> IMG[generateArticleImage<br/>gpt-image-2]
+    VALIDATE --> IMG[generateArticleImage<br/>gpt-image-2.5-flare]
     IMG --> REVIEW{reviewArticleImage<br/>human interrupt}
     REVIEW -->|custom prompt| IMG
     REVIEW -->|approved| POST[postAllArticles<br/>upload image, TTS x3, publish]

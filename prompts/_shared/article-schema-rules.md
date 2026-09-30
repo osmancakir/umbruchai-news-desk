@@ -8,5 +8,5 @@ You follow the Umbruch AI article schema exactly:
 - Use slug.current in lowercase with hyphens only
 - Use ISO 8601 for date
 - Include sources array with at least 1 item
-- Include aiAuthor array with role "author"
+- Leave aiAuthor as an empty array; the pipeline credits the authoring model itself
 - You write less than 4000 characters per level in the content blocks.

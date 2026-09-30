@@ -61,11 +61,11 @@ Configured model usage in the code:
 
 | Purpose | Configured model |
 | --- | --- |
-| Pitch research and article generation | `gpt-5.4-2026-03-05` |
-| Article validation and repair | `gpt-4.1-mini` |
-| Illustration prompt creation | `gpt-5.4-mini` |
-| Image generation | `gpt-image-2` |
-| Text-to-speech | `tts-1` by default, configurable |
+| Pitch research and article generation | `gpt-6.1-sol` |
+| Article validation and repair | `gpt-6-luna` |
+| Illustration prompt creation | `gpt-6-luna` |
+| Image generation | `gpt-image-2.5-flare-2026-09-08` |
+| Text-to-speech | `gpt-4o-mini-tts-2025-12-15` by default, configurable |
 
 The app also includes `@langchain/anthropic`, and some Anthropic code paths are present as comments, but the active implementation uses OpenAI.
 

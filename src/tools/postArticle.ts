@@ -6,7 +6,7 @@ type Level = (typeof ARTICLE_LEVELS)[number]
 const DEFAULT_PROJECT_ID = 'nws8g1b1'
 const DEFAULT_DATASET = 'production'
 const DEFAULT_API_VERSION = '2025-02-19'
-const DEFAULT_TTS_MODEL = 'tts-1'
+const DEFAULT_TTS_MODEL = 'gpt-4o-mini-tts-2025-12-15'
 const DEFAULT_TTS_VOICE = 'alloy'
 const DEFAULT_TTS_SPEED = 1
 const DEFAULT_MAX_TTS_CHARS = 3800
@@ -204,6 +204,23 @@ function chunkTextForTts(text: string, maxChars: number): string[] {
   return packSegments(paragraphs, maxChars, '\n\n')
 }
 
+/**
+ * tts-1 models take speed as a request parameter; gpt-4o-mini-tts ignores it and
+ * only follows pacing written into its instructions.
+ */
+function speechPacing(options: TtsOptions): { speed: number } | { instructions: string } {
+  if (options.model.startsWith('tts-1')) return { speed: options.speed }
+
+  const percent = Math.round(options.speed * 100)
+  const pace =
+    options.speed === 1
+      ? 'at a natural, even pace'
+      : `${options.speed < 1 ? 'slower' : 'faster'} than normal speech, at about ${percent}% of a natural pace`
+  return {
+    instructions: `Read this German news article aloud in clear standard German, like a calm news presenter, ${pace}.`,
+  }
+}
+
 async function generateSpeechBuffer(text: string, label: string, options: TtsOptions): Promise<Buffer> {
   const chunks = chunkTextForTts(text, options.maxChars)
   if (chunks.length > 1) {
@@ -228,7 +245,7 @@ async function generateSpeechBuffer(text: string, label: string, options: TtsOpt
           voice: options.voice,
           input: chunks[i],
           response_format: 'mp3',
-          speed: options.speed,
+          ...speechPacing(options),
         }),
       },
       { label: 'OpenAI TTS', attempts: options.attempts, timeoutSeconds: options.timeoutSeconds, binary: true },

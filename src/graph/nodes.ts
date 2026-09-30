@@ -17,6 +17,9 @@ import {
   validateArticleReplacement,
 } from '../articleValidation.js'
 
+const ARTICLE_MODEL = 'gpt-6.1-sol'
+const ARTICLE_MODEL_VERSION = '6.1'
+const SUPPORT_MODEL = 'gpt-6-luna'
 
 // ─────────────────────────────────────────────
 // Pitch phase
@@ -64,13 +67,8 @@ export async function pitchJournalist(state: State): Promise<Partial<State>> {
     },
   )
 
-  // const model = new ChatAnthropic({
-  //   model: 'claude-opus-4-8',
-  //   maxTokens: 2048,
-  // })
-
   const model = new ChatOpenAI({
-    model: 'gpt-5.4-2026-03-05',
+    model: ARTICLE_MODEL,
     maxTokens: 4096,
   })
 
@@ -218,12 +216,8 @@ Use the web search tool during this call to verify the current facts, source det
 Today's date: ${state.date}
 Generate the complete Sanity mutations JSON now.`
 
-  // const model = new ChatAnthropic({
-  //   model: 'claude-opus-4-8',
-  //   maxTokens: 12000,
-  // })
   const model = new ChatOpenAI({
-    model: 'gpt-5.4-2026-03-05',
+    model: ARTICLE_MODEL,
     maxTokens: 12000,
   })
 
@@ -242,11 +236,21 @@ Generate the complete Sanity mutations JSON now.`
     throw new Error(`[${persona.characterName}] Generated JSON is not valid: ${jsonString.slice(0, 200)}`)
   }
 
+  stampAiAuthor(extractDocFromArticle(parsed))
+
   console.log(`[${persona.emoji} ${persona.characterName}] Generated → ${pitch.slug}`)
 
   return {
     articles: { [journalistId]: parsed },
   }
+}
+
+/**
+ * Credits the model that actually wrote the article. Set in code because models
+ * copy whatever name the schema example shows instead of reporting themselves.
+ */
+function stampAiAuthor(doc: Record<string, unknown> | null): void {
+  if (doc) doc.aiAuthor = [{ name: ARTICLE_MODEL, role: 'author', version: ARTICLE_MODEL_VERSION }]
 }
 
 function messageContentToText(content: unknown): string {
@@ -375,7 +379,8 @@ export async function validateAndFixArticle(state: State): Promise<Partial<State
     async (args) => {
       try {
         const parsed = JSON.parse(args.fixedJson)
-        const normalized = normalizeArticlePayload(parsed).payload
+        const { payload: normalized, doc } = normalizeArticlePayload(parsed)
+        stampAiAuthor(doc)
         const remainingIssues = validateArticleReplacement(article, normalized)
         if (remainingIssues.length > 0) {
           return `Error: the corrected JSON is still invalid. Fix every item and call submit_validated_article again:\n- ${remainingIssues.join('\n- ')}`
@@ -403,7 +408,7 @@ export async function validateAndFixArticle(state: State): Promise<Partial<State
   )
 
   const model = new ChatOpenAI({
-    model: 'gpt-4.1-mini',
+    model: SUPPORT_MODEL,
     maxTokens: 16000,
   })
 
@@ -479,7 +484,7 @@ async function generateIllustrationPrompt(articleRaw: unknown, journalistId: str
   const summary = summaryObj?.medium ?? summaryObj?.easy ?? ''
   const category = (doc?.category as string) ?? ''
 
-  const model = new ChatOpenAI({ model: 'gpt-5.4-mini', maxTokens: 150 })
+  const model = new ChatOpenAI({ model: SUPPORT_MODEL, maxTokens: 150 })
   const response = await model.invoke([
     new SystemMessage(
       `You create illustration prompts for New Yorker magazine-style editorial art.
@@ -503,7 +508,7 @@ async function callOpenAIImageGen(prompt: string): Promise<string> {
   // Prefix reinforces the aesthetic regardless of the user-supplied or LLM-generated prompt
   const fullPrompt = `New Yorker magazine editorial illustration, ink-line and watercolor, elegant composition, no text, no words, no letters: ${prompt}`
 
-  const model = "gpt-image-2"
+  const model = 'gpt-image-2.5-flare-2026-09-08'
   // 16:9 aspect ratio
   const size = '1536x864'
 
