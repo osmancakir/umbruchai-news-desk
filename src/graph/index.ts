@@ -36,7 +36,8 @@ export function buildGraph() {
   const compiled = new StateGraph(StateAnnotation)
     .addNode('pitchJournalist', pitchJournalist)
     .addNode('presentPitches', presentPitches)
-    .addNode('generateArticle', generateArticle)
+    // Retry inside the branch: an uncaught failure aborts every sibling generateArticle branch.
+    .addNode('generateArticle', generateArticle, { retryPolicy: { maxAttempts: 3 } })
     .addNode('validateAndFixArticle', validateAndFixArticle)
     .addNode('generateArticleImage', generateArticleImage)
     .addNode('reviewArticleImage', reviewArticleImage)

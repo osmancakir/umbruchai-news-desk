@@ -14,19 +14,20 @@
     "test": "npm run test:unit && npm run test:e2e"
   },
   "dependencies": {
-    "@langchain/anthropic": "^1.4.0",
-    "@langchain/core": "^1.1.48",
-    "@langchain/langgraph": "^1.4.8",
-    "@langchain/openai": "^1.4.7",
-    "dotenv": "^16.4.7",
-    "langchain": "^1.4.2",
-    "zod": "^3.24.2"
+    "@langchain/anthropic": "^1.5.11",
+    "@langchain/core": "^1.2.13",
+    "@langchain/langgraph": "^1.4.18",
+    "@langchain/openai": "^1.6.0",
+    "dotenv": "^18.0.5",
+    "langchain": "^1.5.14",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
-    "@langchain/langgraph-cli": "^1.4.3",
-    "@types/node": "^22.15.21",
-    "tsx": "^4.19.3",
-    "typescript": "^5.8.3"
+    "@langchain/langgraph-cli": "^1.5.1",
+    "@types/node": "^26.6.3",
+    "tsgo": "npm:typescript@^7.0.2",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3"
   },
   "license": "MIT"
 }

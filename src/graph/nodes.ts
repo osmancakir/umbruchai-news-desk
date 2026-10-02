@@ -218,12 +218,23 @@ Generate the complete Sanity mutations JSON now.`
 
   const model = new ChatOpenAI({
     model: ARTICLE_MODEL,
-    maxTokens: 12000,
+    // Responses API counts reasoning and web-search turns against this budget too.
+    maxTokens: 32000,
   })
 
   const response = await model.invoke([new SystemMessage(systemPrompt), new HumanMessage(userPrompt)], {
     tools: [createWebSearchTool()],
   })
+
+  const { status, incomplete_details } = response.response_metadata as {
+    status?: string
+    incomplete_details?: { reason?: string } | null
+  }
+  if (status === 'incomplete') {
+    throw new Error(
+      `[${persona.characterName}] Article response incomplete (${incomplete_details?.reason ?? 'unknown reason'})`,
+    )
+  }
 
   const rawContent = messageContentToText(response.content)
   const jsonString = extractJson(rawContent)
@@ -232,8 +243,11 @@ Generate the complete Sanity mutations JSON now.`
   let parsed: unknown
   try {
     parsed = JSON.parse(jsonString)
-  } catch {
-    throw new Error(`[${persona.characterName}] Generated JSON is not valid: ${jsonString.slice(0, 200)}`)
+  } catch (error) {
+    // The tail shows where the JSON actually broke; the head is always the same envelope.
+    throw new Error(
+      `[${persona.characterName}] Generated JSON is not valid (${(error as Error).message}, ${jsonString.length} chars). Ends with: ${jsonString.slice(-300)}`,
+    )
   }
 
   stampAiAuthor(extractDocFromArticle(parsed))
@@ -409,6 +423,8 @@ export async function validateAndFixArticle(state: State): Promise<Partial<State
 
   const model = new ChatOpenAI({
     model: SUPPORT_MODEL,
+    // Chat Completions sends max_tokens for non-gpt-5 models, which gpt-6 rejects.
+    useResponsesApi: true,
     maxTokens: 16000,
   })
 
@@ -484,7 +500,8 @@ async function generateIllustrationPrompt(articleRaw: unknown, journalistId: str
   const summary = summaryObj?.medium ?? summaryObj?.easy ?? ''
   const category = (doc?.category as string) ?? ''
 
-  const model = new ChatOpenAI({ model: SUPPORT_MODEL, maxTokens: 150 })
+  // Responses API: see validateAndFixArticle. The budget includes reasoning tokens.
+  const model = new ChatOpenAI({ model: SUPPORT_MODEL, useResponsesApi: true, maxTokens: 2000 })
   const response = await model.invoke([
     new SystemMessage(
       `You create illustration prompts for New Yorker magazine-style editorial art.
