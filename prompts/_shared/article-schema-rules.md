@@ -8,5 +8,6 @@ You follow the Umbruch AI article schema exactly:
 - Use slug.current in lowercase with hyphens only
 - Use ISO 8601 for date
 - Include sources array with at least 1 item
+- Never put links, URLs, or citation markers in article text (content blocks, questions, vocabulary, commentary) — no inline citations like `([apnews.com](https://apnews.com/...))`, no markdown links, no bare URLs. Source attribution belongs only in the sources array
 - Leave aiAuthor as an empty array; the pipeline credits the authoring model itself
 - You write less than 4000 characters per level in the content blocks.

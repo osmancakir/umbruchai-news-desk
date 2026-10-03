@@ -77,6 +77,7 @@ Follow `references/schema.md` exactly. Key rules:
 - Use `slug.current` in lowercase with hyphens only.
 - Use ISO 8601 for `date`.
 - Include `sources` with at least one item; prefer all verification sources.
+- Never put links, URLs, or citation markers in article text (`content` blocks, `questions`, `vocabulary`, `commentary`): no inline citations like `([apnews.com](https://apnews.com/...))`, no markdown links, no bare URLs. Source attribution belongs only in `sources`.
 - Include `leadingImage.externalUrl` only for a verified image URL. Otherwise omit `leadingImage`.
 - Include `aiAuthor` with one model object using role `"author"`.
 
