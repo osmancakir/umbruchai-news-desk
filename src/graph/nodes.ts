@@ -5,7 +5,7 @@ import { createAgent } from 'langchain'
 import { Send, interrupt } from '@langchain/langgraph'
 import { z } from 'zod'
 import type { State } from './state.js'
-import type { Pitch, JournalistId, PostResult } from '../types.js'
+import type { Pitch, JournalistId, PostResult, PitchSelectionInterrupt, ImageReviewInterrupt } from '../types.js'
 import { JOURNALIST_PERSONAS } from '../personas.js'
 import { ARTICLE_SCHEMA_REFERENCE } from '../schema.js'
 import { createWebSearchTool } from '../tools/search.js'
@@ -143,10 +143,13 @@ export function presentPitches(state: State): Partial<State> {
   }
 
   // Interrupt pauses the graph so Studio or an API client can resume it.
-  const userResponse: string = interrupt({
+  const payload: PitchSelectionInterrupt = {
+    kind: 'pitch-selection',
     display,
     prompt: `Which articles should I generate? Enter journalist IDs (${promptJournalistIds}) or "all".`,
-  })
+    pitches,
+  }
+  const userResponse: string = interrupt(payload)
 
   const selectedIds = parseSelection(userResponse, pitches)
   console.log(`\n[Editor] Selected: ${selectedIds.join(', ')}`)
@@ -634,11 +637,15 @@ export function reviewArticleImage(state: State): Partial<State> {
     `${'─'.repeat(60)}`,
   ].join('\n')
 
-  const userResponse: string = interrupt({
+  const payload: ImageReviewInterrupt = {
+    kind: 'image-review',
     display,
-    image: imageUrl,
     prompt: 'Type "ok" to approve, or enter a custom prompt to regenerate the image:',
-  })
+    journalistId,
+    articleTitle: title,
+    image: imageUrl,
+  }
+  const userResponse: string = interrupt(payload)
 
   const trimmed = userResponse.trim().toLowerCase()
   const approved = trimmed === 'ok' || trimmed === 'okay' || trimmed === 'yes'

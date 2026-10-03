@@ -6,7 +6,7 @@ This app is a LangGraph-based multi-agent news desk for generating and publishin
 
 Yes. The app creates a separate journalist agent for each configured journalist during the pitch phase.
 
-The journalists are defined in `src/personas.ts` (identity and beat data) plus `prompts/` (their prose), and enumerated in `src/types.ts`:
+The journalists are defined in `src/journalistProfiles.ts` (identity and beat data) plus `prompts/` (their prose), composed in `src/personas.ts`, and enumerated in `src/types.ts`:
 
 - `left-wing`: George Bourdieu
 - `right-wing`: William F. Brooks
@@ -25,11 +25,13 @@ The full article generation phase does not use `createAgent`; it uses a direct c
 | `src/graph/index.ts` | Builds and compiles the LangGraph workflow. |
 | `src/graph/state.ts` | Defines graph state, reducers, and defaults. |
 | `src/graph/nodes.ts` | Implements pitch, human selection, article generation, validation, publishing, and final summary nodes. |
-| `src/personas.ts` | Defines journalist identities, domains, and Sanity author references; composes their system prompts. |
+| `src/journalistProfiles.ts` | Defines journalist identities, domains, and Sanity author references. Plain data, so `web/` imports it too. |
+| `src/personas.ts` | Composes each profile with its `prompts/` fragments into system prompts. |
 | `src/prompts.ts` | Reads and renders prompt fragments from `prompts/`. |
 | `src/scripts/build-skills.ts` | Generates `skills/*/SKILL.md` from `prompts/`. |
 | `prompts/` | Single source of truth for editorial prose, shared by the graph and the Agent Skills. |
-| `src/types.ts` | Defines journalist IDs, pitch shape, and post result shape. |
+| `src/types.ts` | Defines journalist IDs, pitch shape, post result shape, and the interrupt payloads. |
+| `web/` | Editor's desk UI: a Vite + React app that drives the graph through `langgraph dev`. |
 | `src/tools/search.ts` | Creates OpenAI hosted web search tools for model calls. |
 | `src/tools/postArticle.ts` | Uploads approved images, generates audio, uploads audio files to Sanity, and posts article mutations. |
 | `src/schema.ts` | Contains the article JSON schema reference given to the LLM. |
@@ -251,9 +253,9 @@ Optional:
 
 ## Journalist Personas
 
-A persona is assembled from two places: a data profile in `src/personas.ts` and prose fragments in `prompts/`.
+A persona is assembled from two places: a data profile in `src/journalistProfiles.ts` and prose fragments in `prompts/`.
 
-`JOURNALIST_PROFILES` in `src/personas.ts` holds the non-prose facts:
+`JOURNALIST_PROFILES` in `src/journalistProfiles.ts` holds the non-prose facts:
 
 - `id`: one of the `JournalistId` union values
 - `displayName`: editor-facing label
@@ -296,7 +298,7 @@ To add another journalist, update all of these places:
 
 1. Add a new ID to the `JournalistId` union in `src/types.ts`.
 2. Add that ID to `ALL_JOURNALIST_IDS` in `src/types.ts`.
-3. Add a matching entry to `JOURNALIST_PROFILES` in `src/personas.ts`, pointing `agentRef` at the correct Sanity author document.
+3. Add a matching entry to `JOURNALIST_PROFILES` in `src/journalistProfiles.ts`, pointing `agentRef` at the correct Sanity author document.
 4. Write `prompts/<journalist-id>/persona.md`, `beat.md`, and `research.md`, plus a skill template at `prompts/skills/<skill-dir>.md`, then run `npm run build:skills`.
 5. Confirm the prompt's category rules match the allowed category values in `src/schema.ts`.
 

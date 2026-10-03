@@ -99,13 +99,32 @@ cp .env.example .env   # add OPENAI_API_KEY and SANITY_API_TOKEN
 npm run dev            # LangGraph Studio, graph is registered as news_desk
 ```
 
-The graph is interrupt-driven, so Studio is the intended way to drive it: you will be
-prompted to select pitches and to approve each illustration.
+The graph is interrupt-driven: you are asked to select pitches and to approve each
+illustration. Studio works for that, but it shows the graph's shape, not its run: one
+`pitchJournalist` box however many journalists fan out, and a raw JSON resume box for
+each decision.
+
+### Editor's desk
+
+[`web/`](web/) is a small UI built for the editor instead. It shows one lane per
+journalist moving through pitch, write, check, illustrate and publish; pitch cards with
+checkboxes; and the illustration with approve and regenerate buttons.
+
+```bash
+npm --prefix web install   # once
+npm run dev                # graph server on :2024
+npm run web                # desk on http://localhost:5173
+```
+
+It talks to the graph through `useStream` from `@langchain/langgraph-sdk/react`, with
+Vite proxying `/api` to `:2024`. The thread id lives in the URL, so a reload rejoins the
+run. If a run stopped partway (stopped, or the dev server restarted under it), the desk
+offers to continue it from the last checkpoint.
 
 Publishing targets a Sanity dataset with an `article` schema and `author` documents. The
 expected payload shape is in [`src/schema.ts`](src/schema.ts). Point it at your own
 project via `SANITY_PROJECT_ID` and update the `agentRef` values in
-[`src/personas.ts`](src/personas.ts) to your own author document IDs.
+[`src/journalistProfiles.ts`](src/journalistProfiles.ts) to your own author document IDs.
 
 ## Also here
 
