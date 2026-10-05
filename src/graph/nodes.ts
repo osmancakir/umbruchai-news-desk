@@ -17,7 +17,7 @@ import {
   validateArticleReplacement,
 } from '../articleValidation.js'
 
-const ARTICLE_MODEL = 'gpt-6.1-sol'
+export const ARTICLE_MODEL = 'gpt-6.1-sol'
 const ARTICLE_MODEL_VERSION = '6.1'
 const SUPPORT_MODEL = 'gpt-6-luna'
 

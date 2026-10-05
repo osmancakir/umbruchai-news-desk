@@ -29,7 +29,7 @@ interface TtsOptions {
   timeoutSeconds: number
 }
 
-interface SanityOptions {
+export interface SanityOptions {
   token: string
   projectId: string
   dataset: string
@@ -77,7 +77,7 @@ function shouldRetryError(error: unknown): boolean {
   )
 }
 
-async function fetchWithRetries(
+export async function fetchWithRetries(
   url: string,
   options: RequestInit,
   { label, attempts = 4, timeoutSeconds = 120, binary = false }: FetchOptions,
@@ -117,6 +117,21 @@ async function fetchWithRetries(
   }
 
   throw new Error(`${label} failed after ${attempts} attempts`)
+}
+
+export function sanityOptionsFromEnv(attempts: number, timeoutSeconds: number): SanityOptions {
+  const token = process.env.SANITY_API_TOKEN ?? ''
+  if (!token) throw new Error('Missing Sanity token: set SANITY_API_TOKEN')
+
+  const apiVersion = String(process.env.SANITY_API_VERSION ?? DEFAULT_API_VERSION).trim()
+  return {
+    token,
+    projectId: process.env.SANITY_PROJECT_ID ?? DEFAULT_PROJECT_ID,
+    dataset: process.env.SANITY_DATASET ?? DEFAULT_DATASET,
+    apiVersion: apiVersion.startsWith('v') ? apiVersion : `v${apiVersion}`,
+    attempts,
+    timeoutSeconds,
+  }
 }
 
 function sanityBlocksToText(blocks: PortableTextBlock[]): string {
@@ -300,18 +315,7 @@ async function uploadImageAsset(buffer: Buffer, fileName: string, mimeType: stri
 }
 
 export async function uploadBase64ImageToSanity(dataUrl: string): Promise<string> {
-  const sanityToken = process.env.SANITY_API_TOKEN ?? ''
-  if (!sanityToken) throw new Error('Missing Sanity token: set SANITY_API_TOKEN')
-
-  const apiVersion = String(process.env.SANITY_API_VERSION ?? DEFAULT_API_VERSION).trim()
-  const options: SanityOptions = {
-    token: sanityToken,
-    projectId: process.env.SANITY_PROJECT_ID ?? DEFAULT_PROJECT_ID,
-    dataset: process.env.SANITY_DATASET ?? DEFAULT_DATASET,
-    apiVersion: apiVersion.startsWith('v') ? apiVersion : `v${apiVersion}`,
-    attempts: 4,
-    timeoutSeconds: 60,
-  }
+  const options = sanityOptionsFromEnv(4, 60)
 
   // Strip the data URI prefix: "data:image/png;base64,..."
   const match = dataUrl.match(/^data:(image\/\w+);base64,(.+)$/)
@@ -381,19 +385,7 @@ export async function postArticleWithAudio(rawData: unknown): Promise<string> {
 
   console.log(`  Model: ${ttsOptions.model} | Voice: ${ttsOptions.voice} | Speed: ${ttsOptions.speed}`)
 
-  const sanityToken = process.env.SANITY_API_TOKEN ?? ''
-  if (!sanityToken) throw new Error('Missing Sanity token: set SANITY_API_TOKEN')
-
-  const apiVersion = String(process.env.SANITY_API_VERSION ?? DEFAULT_API_VERSION).trim()
-
-  const sanityOptions: SanityOptions = {
-    token: sanityToken,
-    projectId: process.env.SANITY_PROJECT_ID ?? DEFAULT_PROJECT_ID,
-    dataset: process.env.SANITY_DATASET ?? DEFAULT_DATASET,
-    apiVersion: apiVersion.startsWith('v') ? apiVersion : `v${apiVersion}`,
-    attempts: 5,
-    timeoutSeconds: 120,
-  }
+  const sanityOptions = sanityOptionsFromEnv(5, 120)
 
   for (const level of ARTICLE_LEVELS) {
     const fileName = `${slug}_${level}.mp3`
