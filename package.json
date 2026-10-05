@@ -8,6 +8,11 @@
     "dev": "langgraphjs dev",
     "studio": "langgraphjs dev",
     "web": "npm --prefix web run dev",
+    "bulletin": "tsx src/bulletin/build.ts",
+    "bulletin:animate": "tsx src/bulletin/animate.ts",
+    "bulletin:preview": "npm --prefix video run studio",
+    "bulletin:render": "npm --prefix video run render",
+    "bulletin:render:youtube": "npm --prefix video run render:youtube",
     "build:skills": "tsx src/scripts/build-skills.ts",
     "check:skills": "tsx src/scripts/build-skills.ts --check",
     "test:unit": "node --import tsx --test test/unit/*.test.ts",
@@ -15,6 +20,7 @@
     "test": "npm run test:unit && npm run test:e2e"
   },
   "dependencies": {
+    "@fal-ai/client": "^1.10.1",
     "@langchain/anthropic": "^1.5.11",
     "@langchain/core": "^1.2.13",
     "@langchain/langgraph": "^1.4.18",
