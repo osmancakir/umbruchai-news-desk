@@ -126,6 +126,35 @@ expected payload shape is in [`src/schema.ts`](src/schema.ts). Point it at your 
 project via `SANITY_PROJECT_ID` and update the `agentRef` values in
 [`src/journalistProfiles.ts`](src/journalistProfiles.ts) to your own author document IDs.
 
+### Daily video bulletin
+
+A presenter reads the day's published articles while a news card shows each story.
+[`src/bulletin/`](src/bulletin/) fetches the articles from Sanity, has the article model
+write a spoken anchor script, and voices it as one WAV track. Each segment's timing
+comes from its audio length, so the cards stay in sync. [`video/`](video/) is a Remotion
+project with two cuts of the same bulletin:
+
+- **Reel** (1080×1920, Instagram): the presenter opens full screen, is pushed down when
+  the first story starts while the news panel drops in on top, and returns for the sign-off.
+- **Bulletin** (1920×1080, YouTube): full-frame presenter, news card in the top-right corner.
+
+```bash
+npm --prefix video install          # once
+npm run bulletin                    # today's articles → video/public/bulletin/
+npm run bulletin:animate            # optional: lip-synced presenter via fal (FALAI_API_KEY)
+npm run bulletin:preview            # Remotion Studio, scrub through both cuts
+npm run bulletin:render             # → video/out/bulletin-reel.mp4
+npm run bulletin:render:youtube     # → video/out/bulletin-youtube.mp4
+```
+
+`npm run bulletin -- --help` lists the options: `--date`, `--days`, `--limit`, and
+`--script-only` / `--voice-only` to review and edit `script.json` before voicing it.
+Without `bulletin:animate` the presenter is a still with a slow push-in. With it, fal's
+Flashtalk model ($0.02 per second, about $2.40 for a 2-minute bulletin) turns
+`video/public/presenter-portrait.png` and the narration into a talking portrait clip,
+which the reel uses; the YouTube cut keeps the still. `--seconds 20` animates only the
+start, as a cheap test.
+
 ## Also here
 
 [`skills/`](skills/) holds the same newsroom as Agent Skills for Claude Code and other
