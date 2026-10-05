@@ -8,6 +8,10 @@ node_modules/
 # LangGraph local runtime
 .langgraph_api/
 
+# Daily video bulletin: generated script, narration and renders
+video/public/bulletin/
+video/out/
+
 # Build output
 dist/
 *.tsbuildinfo

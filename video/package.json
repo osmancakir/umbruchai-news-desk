@@ -1,0 +1,24 @@
+{
+  "name": "umbruchai-news-desk-video",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Remotion project that renders the daily video bulletin: the presenter reads the news while news cards appear",
+  "type": "module",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts Reel out/bulletin-reel.mp4",
+    "render:youtube": "remotion render src/index.ts Bulletin out/bulletin-youtube.mp4",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.532",
+    "@remotion/google-fonts": "4.0.532",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "remotion": "4.0.532"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "typescript": "^5.9.3"
+  }
+}
