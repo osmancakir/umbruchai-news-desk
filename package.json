@@ -13,6 +13,7 @@
     "bulletin:preview": "npm --prefix video run studio",
     "bulletin:render": "npm --prefix video run render",
     "bulletin:render:youtube": "npm --prefix video run render:youtube",
+    "bulletin:publish": "tsx src/bulletin/publish.ts",
     "build:skills": "tsx src/scripts/build-skills.ts",
     "check:skills": "tsx src/scripts/build-skills.ts --check",
     "test:unit": "node --import tsx --test test/unit/*.test.ts",
