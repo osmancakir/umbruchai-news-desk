@@ -116,7 +116,9 @@ export function laneStages(id: JournalistId, ctx: LaneContext): Record<StageKey,
     return 'pending'
   }
 
-  const pitchStatus = resolve('pitch', !!pitch)
+  // Parallel branches only commit their state when the whole superstep ends, so a
+  // journalist who finishes early has a done task but no pitch/article in values yet.
+  const pitchStatus = resolve('pitch', !!pitch || live('pitch') === 'done')
   if (dropped) {
     return { pitch: pitchStatus, write: 'skipped', check: 'skipped', illustrate: 'skipped', publish: 'skipped' }
   }
@@ -127,7 +129,7 @@ export function laneStages(id: JournalistId, ctx: LaneContext): Record<StageKey,
 
   return {
     pitch: interrupt?.kind === 'pitch-selection' && pitch && !isEmptyPitch(pitch) ? 'waiting' : pitchStatus,
-    write: resolve('write', !!article),
+    write: resolve('write', !!article || live('write') === 'done'),
     check: resolve('check', pastCheck || (live('check') === 'done')),
     illustrate: values.skipImageGeneration
       ? 'skipped'
